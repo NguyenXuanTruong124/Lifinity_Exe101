@@ -1,0 +1,9 @@
+{
+  "name": "Lifinity - Educational Games for Life Skills",
+  "description": "A comprehensive educational game store platform featuring life skill categories, high-rated games, and an AI-powered learning assistant to help students develop critical thinking, financial literacy, and emotional intelligence.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
