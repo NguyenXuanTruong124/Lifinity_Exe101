@@ -205,9 +205,14 @@ const App: React.FC = () => {
             <main className="w-full animate-in fade-in duration-700">
               {currentPage === 'home' && (
                 <>
-                  <Hero language={language} /><Categories language={language} />
-                  <GameGrid onAddToCart={handleAddToCart} onGameClick={() => setCurrentPage('detail')} />
-                  <NewArrival />
+                  <Hero language={language} />
+                  <Categories language={language} />
+                  <GameGrid 
+                    language={language}
+                    onAddToCart={handleAddToCart} 
+                    onGameClick={() => setCurrentPage('detail')} 
+                  />
+                  <NewArrival language={language} />
                 </>
               )}
               {currentPage === 'catalog' && (

@@ -1,17 +1,18 @@
 import { Category, Game } from './types';
 
 export const CATEGORIES: Category[] = [
-  { id: 'comm', name: 'Giao tiếp', icon: 'record_voice_over' },
-  { id: 'prob', name: 'Giải quyết Vấn đề', icon: 'lightbulb' },
-  { id: 'eq', name: 'Trí tuệ Cảm xúc', icon: 'favorite' },
-  { id: 'crit', name: 'Tư duy Phản biện', icon: 'psychology' },
-  { id: 'fin', name: 'Quản lý Tài chính', icon: 'payments' },
+  { id: 'comm', name: 'Giao tiếp', nameEn: 'Communication', icon: 'record_voice_over' },
+  { id: 'prob', name: 'Giải quyết Vấn đề', nameEn: 'Problem Solving', icon: 'lightbulb' },
+  { id: 'eq', name: 'Trí tuệ Cảm xúc', nameEn: 'Emotional Intelligence', icon: 'favorite' },
+  { id: 'crit', name: 'Tư duy Phản biện', nameEn: 'Critical Thinking', icon: 'psychology' },
+  { id: 'fin', name: 'Quản lý Tài chính', nameEn: 'Financial Management', icon: 'payments' },
 ];
 
 export const GAMES: Game[] = [
   {
     id: '1',
     title: 'Trùm Tài Chính Đại Chiến',
+    titleEn: 'Finance Tycoon Battle',
     ageRange: 'THCS (12+)',
     rating: 4.9,
     price: 499000,
@@ -21,6 +22,7 @@ export const GAMES: Game[] = [
   {
     id: '2',
     title: 'Phòng Thí Nghiệm Logic',
+    titleEn: 'Logic Lab',
     ageRange: 'Tiểu học (8-12)',
     rating: 4.8,
     price: 350000,
@@ -29,6 +31,7 @@ export const GAMES: Game[] = [
   {
     id: '3',
     title: 'Hành Trình Thấu Cảm',
+    titleEn: 'Empathy Journey',
     ageRange: 'Tiểu học (6-10)',
     rating: 4.7,
     price: 'Free',
@@ -37,6 +40,7 @@ export const GAMES: Game[] = [
   {
     id: '4',
     title: 'Làm Chủ Thời Gian',
+    titleEn: 'Time Mastery',
     ageRange: 'THCS (12+)',
     rating: 4.9,
     price: 590000,
@@ -45,6 +49,7 @@ export const GAMES: Game[] = [
   {
     id: '5',
     title: 'Nhà Thám Hiểm Đạo Đức',
+    titleEn: 'Ethics Explorer',
     ageRange: 'THPT (15+)',
     rating: 5.0,
     price: 720000,
@@ -53,6 +58,7 @@ export const GAMES: Game[] = [
   {
     id: '6',
     title: 'Đại Sứ Ngoại Giao',
+    titleEn: 'Diplomacy Ambassador',
     ageRange: 'THCS (12+)',
     rating: 4.8,
     price: 450000,
@@ -61,6 +67,7 @@ export const GAMES: Game[] = [
   {
     id: '7',
     title: 'Vua Giao Tiếp',
+    titleEn: 'Communication King',
     ageRange: 'Tiểu học (8-12)',
     rating: 4.8,
     price: 290000,
@@ -69,6 +76,7 @@ export const GAMES: Game[] = [
   {
     id: '8',
     title: 'Thủ Lĩnh Tương Lai',
+    titleEn: 'Future Leader',
     ageRange: 'THCS (12-15)',
     rating: 4.9,
     price: 520000,
@@ -78,6 +86,7 @@ export const GAMES: Game[] = [
   {
     id: '9',
     title: 'Thành Phố Xanh',
+    titleEn: 'Green City',
     ageRange: 'Tiểu học (6-11)',
     rating: 4.7,
     price: 310000,
@@ -86,6 +95,7 @@ export const GAMES: Game[] = [
   {
     id: '10',
     title: 'Vệ Binh Số',
+    titleEn: 'Digital Guardian',
     ageRange: 'THCS (12-15)',
     rating: 4.8,
     price: 'Free',

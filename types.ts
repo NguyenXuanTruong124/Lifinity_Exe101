@@ -2,16 +2,20 @@
 export interface Game {
   id: string;
   title: string;
+  titleEn?: string;
   ageRange: string;
   rating: number;
   price: number | 'Free';
   imageUrl: string;
   isBestSeller?: boolean;
+  description?: string;
+  descriptionEn?: string;
 }
 
 export interface Category {
   id: string;
   name: string;
+  nameEn?: string;
   icon: string;
 }
 

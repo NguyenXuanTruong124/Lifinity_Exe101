@@ -91,11 +91,11 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
     studentCount: isVi ? 'Sĩ số' : 'Students',
     timeLimit: isVi ? 'Thời gian' : 'Time Limit',
     questions: isVi ? 'Câu hỏi' : 'Questions',
-    rules: isVi ? 'Quy tắc lớp học' : 'Class Rules',
-    addRule: isVi ? 'Thêm quy tắc' : 'Add Rule',
+    rules: isVi ? 'Ý nghĩa lớp học' : 'Class Meaning',
+    addRule: isVi ? 'Thêm ý nghĩa' : 'Add Meaning',
     active: isVi ? 'Đang hoạt động' : 'Active',
     closed: isVi ? 'Kết thúc' : 'Closed',
-    rulesCount: isVi ? 'QUY TẮC' : 'RULES',
+    rulesCount: isVi ? 'Ý NGHĨA' : 'MEANING',
     stats: {
         rank: isVi ? 'Xếp loại' : 'Rank',
         score: isVi ? 'Điểm số' : 'Score',
@@ -218,7 +218,7 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
                     value={newRuleText} 
                     onChange={e => setNewRuleText(e.target.value)} 
                     onKeyDown={e => e.key === 'Enter' && addRule()} 
-                    placeholder={isVi ? 'Thêm quy tắc mới...' : 'Add new rule...'} 
+                    placeholder={isVi ? 'Thêm ý nghĩa mới...' : 'Add new meaning...'} 
                     className="flex-1 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl h-14 px-6 text-sm font-medium focus:ring-2 focus:ring-primary/20 transition-all" 
                   />
                   <button onClick={addRule} className="size-14 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 active:scale-95">

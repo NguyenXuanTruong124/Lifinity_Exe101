@@ -31,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     if (role === 'school') {
       return [
         { id: 'school_members', label: isEn ? 'Unit Personnel' : 'Nhân sự Đơn vị', icon: 'group' },
+        { id: 'school_permissions', label: isEn ? 'System Permissions' : 'Phân quyền hệ thống', icon: 'admin_panel_settings' },
         { id: 'school_library', label: isEn ? 'Curriculum Library' : 'Thư viện giáo trình', icon: 'library_books' },
         { id: 'school_contracts', label: isEn ? 'Contracts' : 'Hợp đồng', icon: 'description' },
         { id: 'school_support', label: isEn ? 'Support' : 'Hỗ trợ', icon: 'headset_mic' },
@@ -88,23 +89,36 @@ const Sidebar: React.FC<SidebarProps> = ({
         }`}
       >
         {/* Branding Header inside Sidebar */}
-        <div className={`p-6 flex items-center gap-3 transition-all ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-          {!isCollapsed && (
-            <div className="flex items-center gap-3.5">
-              <div className="bg-[#2563eb] size-10 rounded-xl flex items-center justify-center text-white shadow-md shrink-0">
-                <span className="material-symbols-outlined text-[24px] filled-icon">menu_book</span>
+        <div className={`p-6 flex flex-col gap-4 border-b border-slate-50 dark:border-gray-800 transition-all ${isCollapsed ? 'items-center' : ''}`}>
+          {!isCollapsed && role !== 'manager' && role !== 'school' && (
+  <div className="flex items-center gap-3 mb-2">
+    <img 
+      src="https://upload.wikimedia.org/wikipedia/vi/thumb/2/2d/Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg/1280px-Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg.png" 
+      alt="FPT Education" 
+      className="h-8 object-contain"
+      referrerPolicy="no-referrer"
+    />
+  </div>
+)}
+          
+          <div className={`flex items-center gap-3 transition-all ${isCollapsed ? 'justify-center' : 'justify-between pt-4 border-t border-slate-50 dark:border-gray-800'}`}>
+            {!isCollapsed && (
+              <div className="flex items-center gap-3.5">
+                <div className="bg-[#2563eb] size-10 rounded-xl flex items-center justify-center text-white shadow-md shrink-0">
+                  <span className="material-symbols-outlined text-[24px] filled-icon">menu_book</span>
+                </div>
+                <div className="flex flex-col">
+                  <h1 className="text-lg font-black leading-none text-slate-900 dark:text-white tracking-tight">Lifinity</h1>
+                  <p className="text-[10px] text-[#2563eb] font-bold uppercase tracking-wider mt-1">{getPortalLabel()}</p>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <h1 className="text-lg font-black leading-none text-slate-900 dark:text-white tracking-tight">Lifinity</h1>
-                <p className="text-[10px] text-[#2563eb] font-bold uppercase tracking-wider mt-1">{getPortalLabel()}</p>
-              </div>
-            </div>
-          )}
-          {isMobileOpen && (
-             <button onClick={onCloseMobile} className="text-slate-400">
-               <span className="material-symbols-outlined">menu</span>
-             </button>
-          )}
+            )}
+            {isMobileOpen && (
+               <button onClick={onCloseMobile} className="text-slate-400">
+                 <span className="material-symbols-outlined">menu</span>
+               </button>
+            )}
+          </div>
         </div>
 
         {/* Navigation List */}

@@ -54,23 +54,25 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
         }`}
       >
         {/* Branding Header */}
-        <div className="p-6 flex items-center justify-between border-b border-slate-50 dark:border-gray-800">
+        <div className="p-6 flex flex-col gap-4 border-b border-slate-50 dark:border-gray-800">
            {!isCollapsed && (
-             <div className="flex items-center gap-3">
-                <div className="bg-[#2563eb] size-11 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                   <span className="material-symbols-outlined text-[26px] filled-icon">shield_person</span>
-                </div>
-                <div className="flex flex-col">
-                   <h1 className="text-xl font-black leading-none text-slate-900 dark:text-white tracking-tight">Lifinity</h1>
-                   <p className="text-[10px] text-[#64748b] dark:text-slate-400 font-black uppercase tracking-widest mt-1">
-                     {isEn ? 'MANAGER PORTAL' : 'QUẢN TRỊ PORTAL'}
-                   </p>
-                </div>
-             </div>
+             <>
+               <div className="flex items-center gap-3 pt-4 border-t border-slate-50 dark:border-gray-800">
+                  <div className="bg-[#2563eb] size-11 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                     <span className="material-symbols-outlined text-[26px] filled-icon">shield_person</span>
+                  </div>
+                  <div className="flex flex-col">
+                     <h1 className="text-xl font-black leading-none text-slate-900 dark:text-white tracking-tight">Lifinity</h1>
+                     <p className="text-[10px] text-[#64748b] dark:text-slate-400 font-black uppercase tracking-widest mt-1">
+                       {isEn ? 'MANAGER PORTAL' : 'QUẢN TRỊ PORTAL'}
+                     </p>
+                  </div>
+               </div>
+             </>
            )}
            <button 
              onClick={onToggle}
-             className="text-slate-400 hover:text-slate-600 transition-colors"
+             className={`text-slate-400 hover:text-slate-600 transition-colors ${isCollapsed ? 'mx-auto' : 'absolute right-6 top-1/2 -translate-y-1/2'}`}
            >
               <span className="material-symbols-outlined text-[24px]">{isCollapsed ? 'menu' : 'menu_open'}</span>
            </button>

@@ -201,7 +201,7 @@ const SchoolDashboard: React.FC<SchoolDashboardProps> = ({ section, language }) 
     </div>
   );
 
-  const renderPermissions = () => (
+   const renderPermissions = () => (
     <div className="space-y-12 animate-in fade-in duration-500 font-display pb-20">
        <header>
           <h2 className="text-3xl font-black dark:text-white uppercase tracking-tight italic leading-none">{t.permissions.initTitle}</h2>
@@ -241,6 +241,76 @@ const SchoolDashboard: React.FC<SchoolDashboardProps> = ({ section, language }) 
                 </div>
                 <button className="w-full bg-emerald-500 text-white h-14 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all">{isEn ? 'Confirm Creation' : 'Xác nhận tạo tài khoản'}</button>
              </div>
+          </div>
+       </div>
+
+       {/* Teacher Privileges Section */}
+       <div className="pt-12 space-y-10">
+          <header>
+             <h2 className="text-3xl font-black dark:text-white uppercase tracking-tight italic leading-none">{t.permissions.setupTitle}</h2>
+             <p className="text-slate-500 text-sm font-medium mt-3">{t.permissions.setupSub}</p>
+          </header>
+
+          <div className="space-y-8">
+             {members.filter(m => m.role.includes('Giáo viên') || m.role.includes('Tổ trưởng')).map((teacher) => (
+                <div key={teacher.id} className="bg-white dark:bg-[#1a2632] rounded-[2.5rem] border border-slate-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                   <div className="flex flex-col lg:flex-row">
+                      {/* Left: Teacher Profile & Admin Rights */}
+                      <div className="lg:w-80 p-10 border-r border-slate-50 dark:border-gray-800 flex flex-col items-center text-center">
+                         <div className="size-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl font-black mb-4 shadow-lg">
+                            {teacher.name.charAt(0)}
+                         </div>
+                         <h4 className="text-lg font-black dark:text-white">{teacher.name}</h4>
+                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{teacher.role}</p>
+
+                         <div className="w-full mt-10 space-y-6 text-left">
+                            <div className="space-y-4">
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.permissions.adminRights}</p>
+                               <div className="flex items-center justify-between">
+                                  <span className="text-xs font-bold dark:text-slate-300">{t.permissions.initAccount}</span>
+                                  <label className="relative inline-flex items-center cursor-pointer">
+                                     <input type="checkbox" className="sr-only peer" defaultChecked={teacher.role.includes('Tổ trưởng')} />
+                                     <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                  </label>
+                               </div>
+                               <p className="text-[10px] text-slate-400 leading-tight">{t.permissions.initAccountSub}</p>
+                            </div>
+                            <button className="flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline">
+                               <span className="material-symbols-outlined text-lg">cancel</span> {t.permissions.revoke}
+                            </button>
+                         </div>
+                      </div>
+
+                      {/* Right: Game List */}
+                      <div className="flex-1 p-10 flex flex-col">
+                         <div className="flex justify-between items-center mb-6">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.permissions.gameList} ({teacher.assignedGames.length})</p>
+                            <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">{t.permissions.selectAll}</button>
+                         </div>
+
+                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 flex-1">
+                            {GAMES.filter(g => leasedGameIds.includes(g.id)).map(game => (
+                               <div key={game.id} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 cursor-pointer ${teacher.assignedGames.includes(game.id) ? 'border-primary bg-primary/5' : 'border-slate-100 dark:border-gray-800 hover:border-slate-200'}`}>
+                                  <div className={`size-6 rounded-lg border-2 flex items-center justify-center transition-all ${teacher.assignedGames.includes(game.id) ? 'bg-primary border-primary text-white' : 'border-slate-200 dark:border-gray-700'}`}>
+                                     {teacher.assignedGames.includes(game.id) && <span className="material-symbols-outlined text-sm font-bold">check</span>}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                     <p className={`text-xs font-black truncate ${teacher.assignedGames.includes(game.id) ? 'text-primary' : 'dark:text-white'}`}>{game.title}</p>
+                                     <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">{t.library.suitability}: {game.ageRange}</p>
+                                  </div>
+                               </div>
+                            ))}
+                         </div>
+
+                         <div className="mt-10 flex justify-end">
+                            <button className="bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:scale-105 transition-all">
+                               {t.permissions.saveConfig}
+                            </button>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             ))}
           </div>
        </div>
     </div>

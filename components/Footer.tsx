@@ -31,10 +31,18 @@ const Footer: React.FC<FooterProps> = ({ language = 'vi' }) => {
   return (
     <footer className="bg-white dark:bg-background-dark border-t border-[#e2e8f0] dark:border-[#1e293b] py-12">
       <div className="max-w-[1200px] mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-4 gap-12">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 text-[#0f172a] dark:text-primary">
-            <span className="material-symbols-outlined text-3xl">sports_esports</span>
-            <h2 className="text-xl font-bold">Lifinity Store</h2>
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-4 text-[#0f172a] dark:text-primary">
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/1/11/FPT_Education_logo.png" 
+              alt="FPT Education" 
+              className="h-8 object-contain"
+              referrerPolicy="no-referrer"
+            />
+            <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4">
+              <span className="material-symbols-outlined text-3xl">sports_esports</span>
+              <h2 className="text-xl font-bold">Lifinity Store</h2>
+            </div>
           </div>
           <p className="text-sm text-slate-500">{t.desc}</p>
           <div className="flex gap-4">

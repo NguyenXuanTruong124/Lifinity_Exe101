@@ -55,9 +55,10 @@ const GameCatalog: React.FC<GameCatalogProps> = ({
     ]
   };
 
-  const filteredGames = GAMES.filter(game => 
-    game.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGames = GAMES.filter(game => {
+    const title = language === 'en' && game.titleEn ? game.titleEn : game.title;
+    return title.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="animate-in fade-in duration-500 font-display">

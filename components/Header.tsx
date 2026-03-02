@@ -71,10 +71,18 @@ const Header: React.FC<HeaderProps> = ({
 
             <button 
               onClick={() => onNavigate('home')} 
-              className="flex items-center gap-2 text-primary shrink-0 hover:opacity-80 transition-all"
+              className="flex items-center gap-2 md:gap-4 text-primary shrink-0 hover:opacity-80 transition-all"
             >
-              <span className="material-symbols-outlined text-2xl md:text-3xl font-bold">sports_esports</span>
-              <h2 className="text-[#2563eb] text-lg md:text-2xl font-black tracking-tight">Lifinity</h2>
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/vi/thumb/2/2d/Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg/1280px-Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg.png" 
+                alt="FPT Education" 
+                className="h-8 md:h-10 object-contain"
+                referrerPolicy="no-referrer"
+              />
+              <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-2 md:pl-4">
+                <span className="material-symbols-outlined text-2xl md:text-3xl font-bold">sports_esports</span>
+                <h2 className="text-[#2563eb] text-lg md:text-2xl font-black tracking-tight">Lifinity</h2>
+              </div>
             </button>
           </div>
           

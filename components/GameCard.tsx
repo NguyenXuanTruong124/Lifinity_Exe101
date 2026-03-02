@@ -63,7 +63,7 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAddToCart, onClick, languag
           </div>
         </div>
         <h3 className={`text-lg font-bold leading-tight group-hover:text-primary transition-colors ${isLeased ? 'text-emerald-700 dark:text-emerald-400' : 'text-[#0f172a] dark:text-white'}`}>
-          {game.title}
+          {language === 'en' && game.titleEn ? game.titleEn : game.title}
         </h3>
         <div className="flex items-center justify-between mt-2">
           <span className={`text-xl font-black ${isLeased ? 'text-slate-400 line-through' : 'text-primary'}`}>
