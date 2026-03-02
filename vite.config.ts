@@ -8,6 +8,10 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // Thêm cấu hình này để cho phép truy cập qua domain của bạn
+        allowedHosts: [
+          'lifinity.tanhuynh.xyz'
+        ],
       },
       plugins: [react()],
       define: {
