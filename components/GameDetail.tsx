@@ -96,7 +96,7 @@ const GameDetail: React.FC<GameDetailProps> = ({ onBack, onAddToCart, language }
 
             <div className="pt-4 border-t border-[#e2e8f0] dark:border-[#334155]">
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-bold text-[#0f172a] dark:text-white">619.000₫</span>
+                <span className="text-3xl font-bold text-[#0f172a] dark:text-white">1.200.000₫</span>
                 <span className="text-sm text-[#64748b] font-medium">{t.priceUnit}</span>
               </div>
               <div className="flex flex-col gap-3">
