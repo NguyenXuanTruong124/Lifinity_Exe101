@@ -30,11 +30,11 @@ const GameScene: React.FC<GameSceneProps> = ({ language, onExit }) => {
         </button>
       </header>
 
-      {/* Vùng chứa Game Unity */}
+      {/* Vùng chứa Game Godot */}
       <main className="relative flex-1 bg-black flex justify-center items-center">
         <iframe
-          src="/unity-game/index.html" // Đường dẫn này khớp với folder public/unity-game
-          title="Unity Protector Game"
+          src="/godot-game/index.html" // Đường dẫn này khớp với folder public/godot-game
+          title="Godot Protector Game"
           className="w-full h-full border-none"
           allow="autoplay; fullscreen; keyboard"
           // Quan trọng: Đảm bảo iframe chiếm hết diện tích
@@ -43,7 +43,7 @@ const GameScene: React.FC<GameSceneProps> = ({ language, onExit }) => {
 
       {/* Footer nhỏ để trang trí nếu cần */}
       <footer className="bg-slate-800 p-1 text-[10px] text-center text-slate-400">
-        Unity WebGL Engine
+        Godot Game Engine
       </footer>
     </div>
   );
