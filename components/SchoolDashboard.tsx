@@ -55,7 +55,7 @@ const SchoolDashboard: React.FC<SchoolDashboardProps> = ({ section, language }) 
       initTitle: isEn ? 'INITIALIZE NEW ACCOUNT' : 'KHỞI TẠO TÀI KHOẢN MỚI',
       initSub: isEn ? 'Create learning accounts for Instructors or Students in the unit.' : 'Tạo tài khoản học tập cho Giảng viên hoặc Học sinh trong đơn vị.',
       createT: isEn ? 'Create Teacher Account' : 'Tạo tài khoản Giáo viên',
-      createTSub: isEn ? 'Grant classroom management and curriculum rights.' : 'Cấp quyền quản lý lớp học và giáo trình cho cán bộ giáo dục.',
+      createTSub: isEn ? 'Grant classroom management and game library rights.' : 'Cấp quyền quản lý lớp học và thư viện trò chơi cho cán bộ giáo dục.',
       createS: isEn ? 'Create Student Account' : 'Tạo tài khoản Học sinh',
       createSSub: isEn ? 'Create student accounts to participate in learning.' : 'Tạo tài khoản cho học sinh tham gia học tập và làm nhiệm vụ.',
       setupTitle: isEn ? 'SET UP TEACHER PRIVILEGES' : 'THIẾT LẬP ĐẶC QUYỀN GIẢNG VIÊN',
@@ -98,17 +98,17 @@ const SchoolDashboard: React.FC<SchoolDashboardProps> = ({ section, language }) 
       pvpModeSub: isEn ? 'Allow classes to challenge each other' : 'Cho phép các lớp thách đấu kỹ năng với nhau'
     },
     library: {
-      title: isEn ? 'Curriculum Library' : 'Thư viện giáo trình',
+      title: isEn ? 'Game Library' : 'Thư viện trò chơi',
       permanent: isEn ? 'Permanent' : 'Vĩnh viễn',
       accCount: isEn ? 'Account Count' : 'Số lượng tài khoản',
       btnDeploy: isEn ? 'Deploy now' : 'Triển khai ngay',
       licenseBadge: isEn ? 'LIFINITY LICENSE' : 'BẢN QUYỀN LIFINITY',
       providedBy: isEn ? 'Issued by' : 'Cấp bởi',
       accSuffix: isEn ? 'ACCOUNTS' : 'TÀI KHOẢN',
-      description: isEn ? 'List of digital skill curricula your school has licensed for implementation.' : 'Danh sách các giáo trình kỹ năng số mà trường đã thuê bản quyền triển khai.',
+      description: isEn ? 'List of digital skill games your school has licensed for implementation.' : 'Danh sách các trò chơi kỹ năng số mà trường đã thuê bản quyền triển khai.',
       suitability: isEn ? 'Ages' : 'Phù hợp',
       emptyTitle: isEn ? 'Empty Library' : 'Thư viện trống',
-      emptySub: isEn ? 'Your school has not leased any curriculum yet.' : 'Quý trường chưa thực hiện thuê giáo trình nào.',
+      emptySub: isEn ? 'Your school has not leased any game yet.' : 'Quý trường chưa thực hiện thuê trò chơi nào.',
       btnExplore: isEn ? 'Explore Catalog' : 'Khám phá Danh mục'
     },
     contracts: {

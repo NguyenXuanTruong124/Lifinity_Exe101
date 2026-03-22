@@ -3,11 +3,29 @@ import { Language } from '../types';
 
 interface GameSceneProps {
   language: Language;
+  activeSession: any;
   onExit: () => void;
 }
 
-const GameScene: React.FC<GameSceneProps> = ({ language, onExit }) => {
+const GameScene: React.FC<GameSceneProps> = ({ language, activeSession, onExit }) => {
   const isVi = language === 'vi';
+
+  // SEND JSON QUESTIONS TO GAME ENGINE
+  React.useEffect(() => {
+    if (activeSession?.config?.questions) {
+      const timer = setTimeout(() => {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+           console.log("SENDING CUSTOM JSON TO GAME ENGINE:", activeSession.config.questions);
+           iframe.contentWindow?.postMessage({
+             type: 'LOAD_CUSTOM_QUESTIONS',
+             questions: activeSession.config.questions
+           }, '*');
+        }
+      }, 3000); 
+      return () => clearTimeout(timer);
+    }
+  }, [activeSession]);
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-900 flex flex-col font-display overflow-hidden">
@@ -42,7 +60,7 @@ const GameScene: React.FC<GameSceneProps> = ({ language, onExit }) => {
       </main>
 
       {/* Footer nhỏ để trang trí nếu cần */}
-      <footer className="bg-slate-800 p-1 text-[10px] text-center text-slate-400">
+      <footer className="bg-slate-800 p-1 text-[10px] text-center text-slate-400">u
         Godot Game Engine
       </footer>
     </div>
