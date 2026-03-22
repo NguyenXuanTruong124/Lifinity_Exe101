@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Language, Game } from '../types';
 import { GAMES } from '../constants';
+import * as XLSX from 'xlsx';
 
 interface TeacherDashboardProps {
   section: string;
@@ -24,6 +25,7 @@ interface TeacherRoom {
   questionsCount: number;
   status: 'Open' | 'Closed';
   studentsProgress: { name: string; progress: number; score: number }[];
+  questions?: {q: string, a: string}[];
 }
 
 const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }) => {
@@ -32,6 +34,11 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
   const [studentLimit, setStudentLimit] = useState(30);
   const [timeLimit, setTimeLimit] = useState(45);
   const [questionCount, setQuestionCount] = useState(20);
+  const [configMode, setConfigMode] = useState<'quick' | 'advanced'>('quick');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isReadingFile, setIsReadingFile] = useState(false);
+  const [extractedCount, setExtractedCount] = useState<number | null>(null);
+  const [previewQuestions, setPreviewQuestions] = useState<{q: string, a: string}[]>([]);
   
   const [rules, setRules] = useState<RoomRule[]>([
     { 
@@ -53,28 +60,100 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
     return GAMES.filter(g => ['1', '2', '3', '4'].includes(g.id));
   }, []);
 
-  const [activeRooms, setActiveRooms] = useState<TeacherRoom[]>([
-    {
-      id: 'ROOM-882',
-      gameId: '1',
-      gameTitle: 'Trùm Tài Chính Đại Chiến',
-      key: 'LIFESKILL-X9',
-      studentsCount: 24,
-      timeLimit: 45,
-      questionsCount: 15,
-      status: 'Open',
-      studentsProgress: [
-        { name: 'Nguyễn Minh Quân', progress: 85, score: 1200 },
-        { name: 'Trần Thị B', progress: 60, score: 850 },
-      ]
+  const [activeRooms, setActiveRooms] = useState<TeacherRoom[]>(() => {
+    const saved = sessionStorage.getItem('lifinity_active_rooms');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Error parsing rooms from session", e);
+        // If parsing fails, return an empty array or default to avoid issues
+        return []; 
+      }
     }
-  ]);
+    // Default value if nothing is in sessionStorage
+    return [
+      {
+        id: 'ROOM-882',
+        gameId: '1',
+        gameTitle: 'Trùm Tài Chính Đại Chiến',
+        key: 'LIFESKILL-X9',
+        studentsCount: 2,
+        timeLimit: 45,
+        questionsCount: 15,
+        status: 'Open',
+        studentsProgress: [
+          { name: 'Nguyễn Minh Quân', progress: 85, score: 1200 },
+          { name: 'Trần Thị B', progress: 60, score: 850 },
+        ]
+      }
+    ];
+  });
 
   const isVi = language === 'vi';
 
+
+
+  // Save to session storage
+  useEffect(() => {
+    sessionStorage.setItem('lifinity_active_rooms', JSON.stringify(activeRooms));
+  }, [activeRooms]);
+
+  // Process file upload
+  useEffect(() => {
+    if (uploadedFile) {
+      setIsReadingFile(true);
+      setExtractedCount(null);
+      setPreviewQuestions([]);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          
+          // Row to JSON conversion
+          const rows = XLSX.utils.sheet_to_json(firstSheet);
+          
+          // Mapping based on user's column headers (Câu Hỏi, Câu Trả Lời)
+          const extracted = rows.map((row: any) => ({
+            q: row['Câu Hỏi'] || row['CÂU HỎI'] || row['Câu hỏi'] || row['Question'] || row['question'] || '',
+            a: row['Câu Trả Lời'] || row['CÂU TRẢ LỜI'] || row['Câu trả lời'] || row['Answer'] || row['answer'] || ''
+          })).filter(item => item.q && item.a); // Only keep rows with both Q and A
+          
+          if (extracted.length > 0) {
+            setExtractedCount(extracted.length);
+            setQuestionCount(extracted.length);
+            setPreviewQuestions(extracted.slice(0, 50)); // Limit preview to 50 for performance
+          } else {
+            // If no match found, fallback or message
+            setExtractedCount(0);
+          }
+        } catch (error) {
+          console.error("Error parsing Excel file:", error);
+          setExtractedCount(0);
+        } finally {
+          setIsReadingFile(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        setIsReadingFile(false);
+        console.error("FileReader error");
+      };
+      
+      reader.readAsArrayBuffer(uploadedFile);
+    } else {
+      setExtractedCount(null);
+      setIsReadingFile(false);
+      setPreviewQuestions([]);
+    }
+  }, [uploadedFile, isVi]);
+
   const t = {
-    libraryTitle: isVi ? 'Thư viện giáo án' : 'Lesson Library',
-    librarySub: isVi ? `Bạn có quyền triển khai ${allowedGames.length} giáo trình.` : `You are authorized to deploy ${allowedGames.length} curricula.`,
+    libraryTitle: isVi ? 'Thư viện trò chơi' : 'Game Library',
+    librarySub: isVi ? `Bạn có quyền triển khai ${allowedGames.length} trò chơi.` : `You are authorized to deploy ${allowedGames.length} games.`,
     configTitle: isVi ? 'Cấu hình Phòng học' : 'Room Setup',
     configSub: isVi ? 'Thiết lập cho giáo trình' : 'Settings for curriculum',
     roomNowTitle: isVi ? 'Phòng học thời gian thực' : 'Live Sessions',
@@ -101,7 +180,12 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
         score: isVi ? 'Điểm số' : 'Score',
         progress: isVi ? 'Tiến độ' : 'Progress',
         name: isVi ? 'Tên học sinh' : 'Student Name',
-    }
+    },
+    quickPlay: isVi ? 'Mở chơi ngay' : 'Quick Play',
+    advancedConfig: isVi ? 'Cấu hình nâng cao' : 'Advanced Configuration',
+    uploadTitle: isVi ? 'Tải lên bảng câu hỏi' : 'Upload Question Sheet',
+    uploadSub: isVi ? 'Hỗ trợ file .xlsx, .csv' : 'Supports .xlsx, .csv',
+    fileSelected: isVi ? 'Đã chọn file' : 'File selected',
   };
 
   const addRule = () => {
@@ -114,22 +198,27 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
     setNewRuleText('');
   };
 
-  const createRoom = () => {
-    if (!selectedGame) return;
+  const createRoom = (gameOverride?: Game) => {
+    const game = gameOverride || selectedGame;
+    if (!game) return;
     const newRoom: TeacherRoom = {
       id: `ROOM-${Math.floor(Math.random() * 900) + 100}`,
-      gameId: selectedGame.id,
-      gameTitle: selectedGame.title,
+      gameId: game.id,
+      gameTitle: game.title,
       key: `EDU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
       studentsCount: 0,
       timeLimit,
       questionsCount: questionCount,
       status: 'Open',
-      studentsProgress: []
+      studentsProgress: [],
+      questions: configMode === 'advanced' ? previewQuestions : undefined
     };
     setActiveRooms([newRoom, ...activeRooms]);
     setSelectedGame(null);
     setIsConfiguring(false);
+    setUploadedFile(null);
+    setPreviewQuestions([]);
+    setConfigMode('quick');
   };
 
   const renderLibrary = () => {
@@ -137,13 +226,32 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
       return (
         <div className="animate-in slide-in-from-right-8 duration-500 space-y-8 pb-20 font-display">
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsConfiguring(false)} className="size-10 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
+            <button onClick={() => { setIsConfiguring(false); setUploadedFile(null); }} className="size-10 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
             <div>
               <h2 className="text-2xl font-black dark:text-white uppercase tracking-tight italic">{t.configTitle}</h2>
               <p className="text-sm text-slate-500">{t.configSub}: <span className="font-bold text-primary">{selectedGame.title}</span></p>
             </div>
+          </div>
+
+          <div className="flex gap-4 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl w-fit">
+            <button 
+              onClick={() => setConfigMode('quick')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${configMode === 'quick' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
+            >
+              <span className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-lg">bolt</span> {t.quickPlay}
+              </span>
+            </button>
+            <button 
+              onClick={() => setConfigMode('advanced')}
+              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${configMode === 'advanced' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-slate-400'}`}
+            >
+              <span className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-lg">settings_suggest</span> {t.advancedConfig}
+              </span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -161,11 +269,56 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isVi ? 'Thời gian (Phút)' : 'Time (Mins)'}</label>
                     <input type="number" value={timeLimit} onChange={e => setTimeLimit(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl h-12 px-4 font-bold" />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{isVi ? 'Số lượng thử thách' : 'Number of Challenges'}</label>
-                    <input type="number" value={questionCount} onChange={e => setQuestionCount(Number(e.target.value))} className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl h-12 px-4 font-bold" />
-                  </div>
+
                 </div>
+
+                {configMode === 'advanced' && (
+                  <div className="mt-8 space-y-4">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{t.uploadTitle}</label>
+                    <div className="relative group">
+                      <input 
+                        type="file" 
+                        onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                        accept=".xlsx,.csv"
+                      />
+                      <div className={`w-full border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center gap-3 transition-all ${uploadedFile ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200 group-hover:border-primary group-hover:bg-primary/5'}`}>
+                        {isReadingFile ? (
+                          <div className="flex flex-col items-center gap-3">
+                             <div className="size-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                             <p className="text-xs font-bold text-primary animate-pulse">{isVi ? 'Đang đọc dữ liệu file...' : 'Reading file data...'}</p>
+                          </div>
+                        ) : uploadedFile ? (
+                          <>
+                            <div className="size-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                              <span className="material-symbols-outlined text-3xl">task</span>
+                            </div>
+                            <div className="text-center">
+                              <p className="font-bold text-emerald-700 text-sm">{uploadedFile.name}</p>
+                              {extractedCount !== null && (
+                                <p className="text-[12px] text-emerald-600 font-black mt-1">
+                                  <span className="material-symbols-outlined text-sm align-middle mr-1">check_circle</span>
+                                  {isVi ? `Đã tìm thấy ${extractedCount} câu hỏi/trả lời` : `Found ${extractedCount} questions/answers`}
+                                </p>
+                              )}
+                              <p className="text-[10px] text-emerald-600/70 font-black uppercase mt-2">{t.fileSelected}</p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="size-12 rounded-2xl bg-slate-100 dark:bg-slate-900 text-slate-400 flex items-center justify-center group-hover:text-primary">
+                              <span className="material-symbols-outlined text-3xl">cloud_upload</span>
+                            </div>
+                            <div className="text-center">
+                              <p className="font-bold dark:text-white text-sm">{isVi ? 'Kéo thả hoặc nhấn để chọn file' : 'Drag and drop or click to select file'}</p>
+                              <p className="text-[10px] text-slate-400 font-black uppercase mt-1">{t.uploadSub}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-primary text-white p-8 rounded-3xl shadow-xl shadow-primary/20 space-y-4">
@@ -178,53 +331,64 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
                     <p className="text-sm opacity-80">{isVi ? 'Mã phòng sẽ hiển thị sau khi nhấn bắt đầu.' : 'Room Key will be generated after starting.'}</p>
                   </div>
                 </div>
-                <button onClick={createRoom} className="w-full bg-white text-primary font-black py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg uppercase tracking-widest">{t.btnCreate}</button>
+                <button 
+                  onClick={createRoom} 
+                  disabled={configMode === 'advanced' && !uploadedFile}
+                  className={`w-full bg-white text-primary font-black py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {t.btnCreate}
+                </button>
               </div>
             </div>
 
             <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm space-y-6 flex flex-col">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold dark:text-white flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary text-2xl">gavel</span> {t.rules}
+                  <span className="material-symbols-outlined text-primary text-2xl">quiz</span> {isVi ? 'Nội dung câu hỏi' : 'Question Content'}
                 </h3>
-                <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    {rules.length} {t.rulesCount}
-                  </span>
-                </div>
               </div>
               
-              <div className="flex-1 space-y-4 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-                {rules.map((rule, idx) => (
-                  <div key={rule.id} className="group relative bg-slate-50/50 dark:bg-slate-900/40 p-6 rounded-[1.75rem] border border-transparent hover:border-primary/10 transition-all">
-                    <div className="flex items-center gap-5">
-                      <div className="size-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-primary text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm">
-                        {idx + 1}
+              <div className="flex-1 space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
+                {configMode === 'advanced' ? (
+                  previewQuestions.length > 0 ? (
+                    previewQuestions.map((item, idx) => (
+                      <div key={idx} className="bg-slate-50/50 dark:bg-slate-900/40 p-6 rounded-[1.75rem] border border-transparent hover:border-primary/10 transition-all space-y-2">
+                        <div className="flex items-start gap-4">
+                          <div className="size-6 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-primary text-[10px] font-black flex items-center justify-center shrink-0">
+                            {idx + 1}
+                          </div>
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{item.q}</p>
+                        </div>
+                        <p className="text-xs text-slate-400 ml-10 font-medium italic">{isVi ? 'Đáp án: ' : 'Answer: '}{item.a}</p>
                       </div>
-                      <p className="flex-1 text-[15px] font-bold text-slate-800 dark:text-slate-200 leading-snug">
-                        {isVi ? rule.textVi : rule.textEn}
-                      </p>
-                      <button className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shrink-0">
-                        <span className="material-symbols-outlined text-xl">close</span>
-                      </button>
+                    ))
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-center p-10 gap-4">
+                      <div className="size-20 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+                         <span className="material-symbols-outlined text-4xl text-slate-200 animate-bounce">upload_file</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-black dark:text-white uppercase tracking-widest">{isVi ? 'Đang chờ tải file...' : 'Waiting for file...'}</p>
+                        <p className="text-[10px] text-slate-400 font-medium mt-1">{isVi ? 'Vui lòng chọn file câu hỏi ở bảng bên trái' : 'Please select a question file on the left panel'}</p>
+                      </div>
                     </div>
+                  )
+                ) : (
+                  <div className="space-y-6">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-3xl border border-blue-100 dark:border-blue-800/30">
+                       <p className="text-xs font-bold text-blue-600 dark:text-blue-400 leading-relaxed text-center">
+                         {isVi ? 'Chế độ Mở ngay sử dụng bộ câu hỏi mặc định của hệ thống cho trò chơi này.' : 'Quick Start mode uses the system default question set for this game.'}
+                       </p>
+                    </div>
+                    {/* Visual placeholder for questions in quick play */}
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="opacity-40 bg-slate-50 dark:bg-slate-900/40 p-6 rounded-[1.75rem] border border-transparent space-y-2 blur-[1px]">
+                        <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                        <div className="h-3 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-
-              <div className="pt-4 border-t border-slate-50 dark:border-slate-700 space-y-3">
-                <div className="flex gap-2">
-                  <input 
-                    value={newRuleText} 
-                    onChange={e => setNewRuleText(e.target.value)} 
-                    onKeyDown={e => e.key === 'Enter' && addRule()} 
-                    placeholder={isVi ? 'Thêm ý nghĩa mới...' : 'Add new meaning...'} 
-                    className="flex-1 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl h-14 px-6 text-sm font-medium focus:ring-2 focus:ring-primary/20 transition-all" 
-                  />
-                  <button onClick={addRule} className="size-14 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 active:scale-95">
-                    <span className="material-symbols-outlined text-2xl">add</span>
-                  </button>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -250,7 +414,20 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ section, language }
                    <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{isVi ? 'Độ tuổi' : 'Age'}</span><span className="text-sm font-black dark:text-white">{game.ageRange}</span></div>
                    <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{isVi ? 'Đánh giá' : 'Rating'}</span><span className="text-sm font-black text-yellow-500 flex items-center gap-1">★ {game.rating}</span></div>
                 </div>
-                <button onClick={() => { setSelectedGame(game); setIsConfiguring(true); }} className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold py-3 rounded-2xl hover:bg-primary hover:text-white transition-all uppercase text-xs tracking-widest">{isVi ? 'Cấu hình phiên học' : 'Setup Session'}</button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => { setSelectedGame(game); setIsConfiguring(true); setConfigMode('quick'); }}
+                    className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-bold py-3 rounded-2xl hover:bg-primary hover:text-white transition-all uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-sm">bolt</span> {isVi ? 'Mở ngay' : 'Quick Start'}
+                  </button>
+                  <button 
+                    onClick={() => { setSelectedGame(game); setIsConfiguring(true); setConfigMode('advanced'); }}
+                    className="flex-1 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold py-3 rounded-2xl hover:bg-primary hover:text-white transition-all uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 shadow-lg"
+                  >
+                    <span className="material-symbols-outlined text-sm">settings</span> {isVi ? 'Cấu hình' : 'Configure'}
+                  </button>
+                </div>
               </div>
             </div>
           ))}

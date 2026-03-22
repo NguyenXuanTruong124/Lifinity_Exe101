@@ -5,7 +5,7 @@ import { Language } from '../types';
 interface UserGameRoomProps {
   language: Language;
   activeSession: any;
-  onJoinSession: (code: string) => void;
+  onJoinSession: (code: string) => boolean;
   onEnterGame: () => void;
 }
 
@@ -14,6 +14,35 @@ const UserGameRoom: React.FC<UserGameRoomProps> = ({
 }) => {
   const [roomCode, setRoomCode] = useState('');
   const isVi = language === 'vi';
+
+  const [realActiveRooms, setRealActiveRooms] = useState<any[]>(() => {
+    const saved = sessionStorage.getItem('lifinity_active_rooms');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  const [discoveredRoomKeys, setDiscoveredRoomKeys] = useState<string[]>(() => {
+    const saved = sessionStorage.getItem('lifinity_discovered_keys');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  React.useEffect(() => {
+    sessionStorage.setItem('lifinity_discovered_keys', JSON.stringify(discoveredRoomKeys));
+  }, [discoveredRoomKeys]);
+
 
   const t = {
     title: isVi ? 'PHÒNG GAME CỦA TÔI' : 'MY GAME ROOM',
@@ -33,9 +62,22 @@ const UserGameRoom: React.FC<UserGameRoomProps> = ({
 
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!roomCode.trim()) return;
-    onJoinSession(roomCode);
-    onEnterGame();
+    const ucKey = roomCode.toUpperCase().trim();
+    if (!ucKey) return;
+    
+    // Check if it's a real room to "discover" it
+    const matchingRoom = realActiveRooms.find(r => r.key === ucKey || r.key.endsWith(ucKey));
+    if (matchingRoom) {
+      if (!discoveredRoomKeys.includes(matchingRoom.key)) {
+        setDiscoveredRoomKeys(prev => [...prev, matchingRoom.key]);
+      }
+      setRoomCode(''); // Clear input
+      return;
+    }
+
+    // fallback to original behavior if it's some other key or for testing
+    const success = onJoinSession(roomCode);
+    if (success) onEnterGame();
   };
 
   return (
@@ -66,42 +108,50 @@ const UserGameRoom: React.FC<UserGameRoomProps> = ({
         </form>
       </header>
 
-      {activeSession && (
-        <section className="relative overflow-hidden bg-primary rounded-3xl md:rounded-[2.5rem] p-6 md:p-10 text-white shadow-2xl shadow-primary/30 group">
-          <div className="absolute top-0 right-0 size-48 md:size-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-110 transition-transform duration-700"></div>
-          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6 md:gap-8">
-            <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 text-center sm:text-left">
-              <div className="size-16 md:size-24 rounded-2xl md:rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
-                <span className="material-symbols-outlined text-4xl md:text-5xl animate-pulse">videogame_asset</span>
+
+
+      <div className="h-px w-full bg-slate-100 dark:bg-gray-800"></div>
+      <section className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Filtered Real Active Rooms - Only show if discovered via key */}
+          {realActiveRooms
+            .filter(room => discoveredRoomKeys.includes(room.key))
+            .map(room => (
+              <div key={room.id} className="bg-white dark:bg-[#1a262e] p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border-2 border-primary/20 dark:border-primary/10 group hover:border-primary transition-all shadow-lg flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 right-0 px-3 py-1 bg-primary text-white text-[8px] font-black uppercase tracking-widest rounded-bl-xl">
+                {isVi ? 'Đang mở' : 'Open'}
               </div>
-              <div className="space-y-1 md:space-y-2">
-                <span className="px-2.5 py-0.5 bg-white/20 rounded-full text-[9px] font-black uppercase tracking-widest">{t.activeTitle}</span>
-                <h3 className="text-xl md:text-3xl font-black leading-tight">{activeSession.game}</h3>
-                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3 md:gap-4 text-white/80 font-bold text-[10px] md:text-xs uppercase tracking-widest">
-                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">vpn_key</span> {activeSession.key}</span>
-                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">person</span> {activeSession.teacher}</span>
+              <div className="flex justify-between items-start mb-4 md:mb-6">
+                <div className={`size-12 md:size-14 rounded-xl md:rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform`}>
+                  <span className="material-symbols-outlined text-2xl md:text-3xl">hub</span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Mã tham gia</span>
+                  <span className="text-sm font-black text-primary tracking-tighter">{room.key}</span>
                 </div>
               </div>
+              <h4 className="text-base md:text-lg font-black dark:text-white group-hover:text-primary transition-colors">{room.gameTitle}</h4>
+              <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-50 dark:border-gray-800 mt-4">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase">{isVi ? 'Đang tham gia' : 'Students'}</span>
+                  <span className="text-xs font-black dark:text-slate-300">{room.studentsCount} học sinh</span>
+                </div>
+                <button 
+                  onClick={() => {
+                    const success = onJoinSession(room.key);
+                    if (success) onEnterGame();
+                  }}
+                  className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-md active:scale-95 transition-all"
+                >
+                  {t.joinNow}
+                </button>
+              </div>
             </div>
-            <button 
-              onClick={onEnterGame}
-              className="w-full lg:w-auto bg-white text-primary px-8 md:px-10 py-3.5 md:py-5 rounded-2xl font-black text-xs md:text-sm uppercase tracking-[0.1em] shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 shrink-0"
-            >
-              <span className="material-symbols-outlined font-black">play_circle</span>
-              {t.rejoin}
-            </button>
-          </div>
-        </section>
-      )}
+          ))}
 
-      <section className="space-y-6">
-        <div className="flex items-center gap-3">
-           <h3 className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{t.exploreTitle}</h3>
-           <div className="h-px flex-1 bg-slate-100 dark:bg-gray-800"></div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Sample Rooms */}
           {t.sampleRooms.map(room => (
-            <div key={room.id} className="bg-white dark:bg-[#1a262e] p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-gray-800 group hover:border-primary transition-all shadow-sm flex flex-col">
+            <div key={room.id} className="bg-white dark:bg-[#1a262e] p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-gray-800 group hover:border-primary transition-all shadow-sm flex flex-col opacity-80">
               <div className="flex justify-between items-start mb-4 md:mb-6">
                 <div className={`size-12 md:size-14 rounded-xl md:rounded-2xl ${room.color} text-white flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform`}>
                   <span className="material-symbols-outlined text-2xl md:text-3xl">{room.icon}</span>
@@ -123,7 +173,10 @@ const UserGameRoom: React.FC<UserGameRoomProps> = ({
                   <span className="text-[9px] font-bold text-slate-400">+{room.students} {isVi ? 'đang chơi' : 'playing'}</span>
                 </div>
                 <button 
-                  onClick={onEnterGame}
+                  onClick={() => {
+                    const success = onJoinSession(`SAMPLE-${room.id}`);
+                    if (success) onEnterGame();
+                  }}
                   className="text-primary font-black text-[10px] md:text-xs uppercase tracking-widest hover:underline"
                 >
                   {t.joinNow}
@@ -132,6 +185,8 @@ const UserGameRoom: React.FC<UserGameRoomProps> = ({
             </div>
           ))}
         </div>
+
+
       </section>
     </div>
   );

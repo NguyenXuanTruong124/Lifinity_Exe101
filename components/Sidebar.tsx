@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       return [
         { id: 'school_members', label: isEn ? 'Unit Personnel' : 'Nhân sự Đơn vị', icon: 'group' },
         { id: 'school_permissions', label: isEn ? 'System Permissions' : 'Phân quyền hệ thống', icon: 'admin_panel_settings' },
-        { id: 'school_library', label: isEn ? 'Curriculum Library' : 'Thư viện giáo trình', icon: 'library_books' },
+        { id: 'school_library', label: isEn ? 'Game Library' : 'Thư viện trò chơi', icon: 'library_books' },
         { id: 'school_contracts', label: isEn ? 'Contracts' : 'Hợp đồng', icon: 'description' },
         { id: 'school_support', label: isEn ? 'Support' : 'Hỗ trợ', icon: 'headset_mic' },
         { id: 'school_profile', label: isEn ? 'Unit Profile' : 'Hồ sơ Đơn vị', icon: 'account_balance' },
@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
     if (role === 'teacher') {
       return [
-        { id: 'teacher_library', label: isEn ? 'Lesson Library' : 'Thư viện giáo án', icon: 'menu_book' },
+        { id: 'teacher_library', label: isEn ? 'Game Library' : 'Thư viện trò chơi', icon: 'menu_book' },
         { id: 'teacher_rooms', label: isEn ? 'Live Sessions' : 'Phòng học đang mở', icon: 'sensors' },
         { id: 'teacher_analytics', label: isEn ? 'Reports & Scores' : 'Báo cáo & Điểm số', icon: 'monitoring' },
         { id: 'teacher_profile', label: isEn ? 'Instructor Profile' : 'Hồ sơ Giảng viên', icon: 'badge' },

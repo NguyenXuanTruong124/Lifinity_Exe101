@@ -51,6 +51,39 @@ const App: React.FC = () => {
   const [activeSession, setActiveSession] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Persistence logic
+  useEffect(() => {
+    const savedAuth = sessionStorage.getItem('lifinity_auth');
+    const savedLang = sessionStorage.getItem('lifinity_lang');
+    const savedPage = sessionStorage.getItem('lifinity_page');
+    const savedSession = sessionStorage.getItem('lifinity_active_session');
+    
+    if (savedAuth) setAuth(JSON.parse(savedAuth));
+    if (savedLang) setLanguage(savedLang as Language);
+    if (savedPage) setCurrentPage(savedPage as Page);
+    if (savedSession) setActiveSession(JSON.parse(savedSession));
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem('lifinity_auth', JSON.stringify(auth));
+  }, [auth]);
+
+  useEffect(() => {
+    sessionStorage.setItem('lifinity_lang', language);
+  }, [language]);
+
+  useEffect(() => {
+    sessionStorage.setItem('lifinity_page', currentPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (activeSession) {
+      sessionStorage.setItem('lifinity_active_session', JSON.stringify(activeSession));
+    } else {
+      sessionStorage.removeItem('lifinity_active_session');
+    }
+  }, [activeSession]);
+
   const leasedGameIds = ['1', '2', '3', '4', '5', '6'];
 
   const handleAddToCart = (game: Game) => {
@@ -64,7 +97,8 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setAuth({ isLoggedIn: false, role: 'guest', username: '' });
-    setActiveSession(null);
+    // We keep activeSession based on user request (lost only on browser close)
+    // setActiveSession(null); 
     setIsPlaying(false);
     setIsMobilePortalMenuOpen(false);
     setCurrentPage('home');
@@ -85,12 +119,32 @@ const App: React.FC = () => {
   };
 
   const handleJoinSession = (code: string) => {
-    setActiveSession({
-      key: code.toUpperCase(),
-      game: language === 'vi' ? "Kỹ năng thoát hiểm" : "Escape Skills",
-      teacher: language === 'vi' ? "Cô Nguyễn Thảo" : "Ms. Nguyen Thao",
-      startTime: new Date().toLocaleTimeString(),
-    });
+    const ucCode = code.toUpperCase();
+    
+    // Check real rooms from session storage
+    const savedRoomsRaw = sessionStorage.getItem('lifinity_active_rooms');
+    if (savedRoomsRaw) {
+      try {
+        const rooms = JSON.parse(savedRoomsRaw);
+        const matchingRoom = rooms.find((r: any) => r.key === ucCode || r.key.endsWith(ucCode));
+        
+        if (matchingRoom) {
+          setActiveSession({
+            key: matchingRoom.key,
+            game: matchingRoom.gameTitle,
+            teacher: language === 'vi' ? "Giảng viên Hệ thống" : "System Instructor",
+            startTime: new Date().toLocaleTimeString(),
+            config: matchingRoom
+          });
+          return true; // Success
+        }
+      } catch (e) {
+        console.error("Error parsing rooms", e);
+      }
+    }
+    
+    alert(language === 'vi' ? "Mã phòng không tồn tại hoặc đã kết thúc!" : "Room Key does not exist or has ended!");
+    return false; // Failed
   };
 
   const isSchoolPage = currentPage.startsWith('school_');
@@ -105,6 +159,7 @@ const App: React.FC = () => {
       {isPlaying && (
         <GameScene 
           language={language} 
+          activeSession={activeSession}
           onExit={() => setIsPlaying(false)} 
         />
       )}
