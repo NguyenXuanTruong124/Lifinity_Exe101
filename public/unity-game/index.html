@@ -116,6 +116,7 @@
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
               }).then((unityInstance) => {
+                window.unityInstance = unityInstance; // Make global for bridge
                 document.querySelector("#unity-loading-bar").style.display = "none";
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
                   unityInstance.SetFullscreen(1);
@@ -125,6 +126,20 @@
                 alert(message);
               });
             };
+
+      // BRIDGE FOR JSON QUESTIONS
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'LOAD_CUSTOM_QUESTIONS') {
+          console.log("BRIDGE: Received questions from React, sending to Unity...", event.data.questions);
+          if (window.unityInstance) {
+            // Assuming Unity has a "BaseGameManager" object with a "LoadQuestionsFromJSON" method
+            // Modify "BaseGameManager" and "LoadQuestionsFromJSON" to match your Unity C# script
+            window.unityInstance.SendMessage("BaseGameManager", "LoadQuestionsFromJSON", JSON.stringify(event.data.questions));
+          } else {
+            console.warn("BRIDGE: unityInstance not ready yet!");
+          }
+        }
+      });
 
       document.body.appendChild(script);
 

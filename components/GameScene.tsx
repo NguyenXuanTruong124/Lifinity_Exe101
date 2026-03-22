@@ -48,20 +48,20 @@ const GameScene: React.FC<GameSceneProps> = ({ language, activeSession, onExit }
         </button>
       </header>
 
-      {/* Vùng chứa Game Godot */}
+      {/* Vùng chứa Game Unity */}
       <main className="relative flex-1 bg-black flex justify-center items-center">
         <iframe
-          src="/godot-game/index.html" // Đường dẫn này khớp với folder public/godot-game
-          title="Godot Protector Game"
+          key={activeSession?.key || 'unity-game'}
+          src={`/unity-game/index.html?v=${Date.now()}`} // Force refresh
+          title="Unity Protector Game"
           className="w-full h-full border-none"
           allow="autoplay; fullscreen; keyboard"
-          // Quan trọng: Đảm bảo iframe chiếm hết diện tích
         />
       </main>
 
       {/* Footer nhỏ để trang trí nếu cần */}
-      <footer className="bg-slate-800 p-1 text-[10px] text-center text-slate-400">u
-        Godot Game Engine
+      <footer className="bg-slate-800 p-1 text-[10px] text-center text-slate-400">
+        Unity Game Engine WebGL
       </footer>
     </div>
   );
