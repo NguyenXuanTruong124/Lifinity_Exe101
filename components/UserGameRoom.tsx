@@ -45,7 +45,7 @@ const UserGameRoom: React.FC<UserGameRoomProps> = ({
 
 
   const t = {
-    title: isVi ? 'PHÒNG GAME CỦA TÔI' : 'MY GAME ROOM',
+    title: isVi ? 'PHÒNG TRÒ CHƠI CỦA TÔI' : 'MY GAME ROOM',
     sub: isVi ? 'Tham gia lớp học bằng mã giáo viên cung cấp.' : 'Join a class using your teacher\'s key.',
     joinNow: isVi ? 'Vào phòng ngay' : 'Join Now',
     activeTitle: isVi ? 'PHÒNG ĐANG DIỄN RA' : 'ACTIVE SESSION',

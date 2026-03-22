@@ -48,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
     return [
       { id: 'user_dashboard', label: isEn ? 'Dashboard' : 'Bảng điều khiển', icon: 'dashboard' },
-      { id: 'user_game_room', label: isEn ? 'Game Room' : 'Phòng game', icon: 'videogame_asset', activeSession: hasActiveSession },
+      { id: 'user_game_room', label: isEn ? 'Game Room' : 'Phòng trò chơi', icon: 'videogame_asset', activeSession: hasActiveSession },
       { id: 'analytics', label: isEn ? 'Learning History' : 'Lịch sử học tập', icon: 'history' },
       { id: 'achievements', label: isEn ? 'Achievements' : 'Thành tích', icon: 'workspace_premium' },
       { id: 'settings', label: isEn ? 'My Profile' : 'Hồ sơ cá nhân', icon: 'person' },

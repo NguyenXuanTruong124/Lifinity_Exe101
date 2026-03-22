@@ -34,7 +34,7 @@ const Footer: React.FC<FooterProps> = ({ language = 'vi' }) => {
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-4 text-[#0f172a] dark:text-primary">
             <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/1/11/FPT_Education_logo.png" 
+              src="https://upload.wikimedia.org/wikipedia/vi/thumb/2/2d/Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg/1280px-Logo_Tr%C6%B0%E1%BB%9Dng_%C4%90%E1%BA%A1i_h%E1%BB%8Dc_FPT.svg.png"
               alt="FPT Education" 
               className="h-8 object-contain"
               referrerPolicy="no-referrer"
